@@ -1,52 +1,76 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
-  const MyApp();
-
   @override
   Widget build(BuildContext context) {
-    const appTitle = '123456';
     return MaterialApp(
-      title: appTitle,
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text(appTitle),
-        ),
-        body:  MyCustomForm(),
-      ),
+      home: MyHomePage(),
     );
   }
 }
 
-class MyCustomForm extends StatelessWidget {
-  const MyCustomForm();
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  Color _buttonColor = Colors.blue;
+
+  void _changeColor(Color color) {
+    setState(() {
+      _buttonColor = color;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 10),
-          child: TextField(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'что-то писать',
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('кнопка меняет цвет'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                _changeColor(Colors.red);
+              },
+              child: Text('красный'),
             ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
-          child: TextFormField(
-            decoration: const InputDecoration(
-              border: UnderlineInputBorder(),
-              labelText: 'что-то тоже писать',
+            ElevatedButton(
+              onPressed: () {
+                _changeColor(Colors.green);
+              },
+              child: Text('зеленый'),
             ),
-          ),
+            ElevatedButton(
+              onPressed: () {
+                _changeColor(Colors.blue);
+              },
+              child: Text('голубой'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.pressed)) return Colors.black;
+                    return _buttonColor;
+                  },
+                ),
+              ),
+              onPressed: () {},
+              child: Text('Меняй цвет'),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
