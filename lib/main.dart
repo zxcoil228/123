@@ -1,76 +1,79 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: MyHomePage(),
+      home: AnimatedSquare(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class AnimatedSquare extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _AnimatedSquareState createState() => _AnimatedSquareState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  Color _buttonColor = Colors.blue;
+class _AnimatedSquareState extends State<AnimatedSquare> with TickerProviderStateMixin {
+  AnimationController controller;
+  Animation<Offset> animation;
+  int colorIndex = 0;
 
-  void _changeColor(Color color) {
-    setState(() {
-      _buttonColor = color;
+  List<Color> colors = [    Colors.red,    Colors.blue,    Colors.green,    Colors.yellow,  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 4),
+    );
+
+    animation = Tween<Offset>(
+      begin: Offset(0, 0),
+      end: Offset(1, 1),
+    ).animate(
+      CurvedAnimation(
+        parent: controller,
+        curve: Curves.linear,
+      ),
+    )..addListener(() {
+      setState(() {
+        // Change color every second
+        if (controller.value >= 0.25 * colorIndex + 0.25) {
+          colorIndex++;
+        }
+      });
     });
+
+    controller.repeat();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('кнопка меняет цвет'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                _changeColor(Colors.red);
-              },
-              child: Text('красный'),
+      body: Stack(
+        children: [
+          Positioned(
+            top: MediaQuery.of(context).size.height * animation.value.dy - 75,
+            left: MediaQuery.of(context).size.width * animation.value.dx - 75,
+            child: Container(
+              width: 150,
+              height: 150,
+              color: colors[colorIndex % 4],
             ),
-            ElevatedButton(
-              onPressed: () {
-                _changeColor(Colors.green);
-              },
-              child: Text('зеленый'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _changeColor(Colors.blue);
-              },
-              child: Text('голубой'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                      (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.pressed)) return Colors.black;
-                    return _buttonColor;
-                  },
-                ),
-              ),
-              onPressed: () {},
-              child: Text('Меняй цвет'),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 }
